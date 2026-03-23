@@ -2,9 +2,9 @@ import os
 import sys
 
 # Ensure the repository root is on sys.path so the app package can be imported when running the test directly.
-# ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-# if ROOT_DIR not in sys.path:
-#     sys.path.insert(0, ROOT_DIR)
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 import faiss
 from embedder import create_embedding
@@ -30,7 +30,8 @@ def load_pdfs(folder_path):
             docs = loader.load()
 
             for doc in docs:
-                doc.metadata["source"] = file  # track file name
+                doc.metadata["source"] = file
+                doc.metadata["page_number"] = doc.metadata.get("page", 0) + 1
 
             all_docs.extend(docs)
 
@@ -51,7 +52,9 @@ def chunk_documents(docs):
         for chunk in split_chunks:
             chunks.append({
                 "text": chunk,
-                "doc_id": doc_id
+                "doc_id": doc_id,
+                "source": doc.metadata["source"],         
+                "page": doc.metadata["page_number"]       
             })
 
     return chunks
